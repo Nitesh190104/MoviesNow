@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Movie Timing Selection</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f8fb;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .movie-card {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .cinema-name {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .tags {
+      font-size: 14px;
+      color: #007B8A;
+      margin-bottom: 10px;
+    }
+
+    .timings {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+    }
+
+    .time-slot {
+      padding: 10px 15px;
+      background-color: #e0f7fa;
+      color: #007B8A;
+      border-radius: 8px;
+      border: 1px solid #00acc1;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .time-slot.fast-filling {
+      background-color: #fff3e0;
+      color: #ef6c00;
+      border: 1px solid #ef6c00;
+    }
+
+    .time-slot.available {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+      border: 1px solid #2e7d32;
+    }
+
+    .cancel-info {
+      font-size: 13px;
+      color: #666;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="movie-card">
+    <div class="cinema-name">Cinepolis: Pacific NSP2, Delhi</div>
+    <div class="tags">🎟️ M-Ticket | 🍿 Food & Beverage</div>
+    <div class="timings">
+        <div class="time-slot">09:30 AM</div>
+        <div class="time-slot">10:30 AM</div>
+        <div class="time-slot">11:30 AM</div>
+        <div class="time-slot">11:45 PM</div>
+        <div class="time-slot">12:15 PM</div>
+      <div class="time-slot">03:30 PM</div>
+      <div class="time-slot fast-filling">04:00 PM</div>
+      <div class="time-slot">04:30 PM</div>
+      <div class="time-slot available">06:45 PM</div>
+      <div class="time-slot available">07:45 PM</div>
+      <div class="time-slot available">08:30 PM</div>
+      <div class="time-slot fast-filling">10:00 PM</div>
+      <div class="time-slot">11:00 PM</div>
+    </div>
+    <div class="cancel-info">Cancellation available</div>
+  </div>
+
+  <div class="movie-card">
+    <div class="cinema-name">PVR: Vegas Dwarka</div>
+    <div class="tags">🎟️ M-Ticket | 🍿 Food & Beverage</div>
+    <div class="timings">
+        <div class="time-slot">09:30 AM</div>
+        <div class="time-slot">10:30 AM</div>
+        <div class="time-slot">11:30 AM</div>
+        <div class="time-slot">11:45 PM</div>
+      <div class="time-slot">02:15 PM</div>
+      <div class="time-slot fast-filling">03:40 PM</div>
+      <div class="time-slot available">08:35 PM</div>
+      <div class="time-slot available">11:15 PM</div>
+      <div class="time-slot ">07:45 PM</div>
+      <div class="time-slot available">08:30 PM</div>
+      <div class="time-slot">10:00 PM</div>
+      <div class="time-slot fast-filling">11:00 PM</div>
+    </div>
+    <div class="cancel-info">Cancellation available</div>
+  </div>
+
+  <div class="movie-card">
+    <div class="cinema-name">Cinepolis: DLF Avenue, Saket</div>
+    <div class="tags">🎟️ M-Ticket | 🍿 Food & Beverage</div>
+    <div class="timings">
+        <div class="time-slot">09:30 AM</div>
+        <div class="time-slot">10:30 AM</div>
+        <div class="time-slot">11:30 AM</div>
+        <div class="time-slot">11:45 PM</div>
+        <div class="time-slot">02:45 PM</div>
+      <div class="time-slot">04:00 PM</div>
+      <div class="time-slot fast-filling">07:15 PM</div>
+      <div class="time-slot">07:30 PM</div>
+      <div class="time-slot ">07:45 PM</div>
+      <div class="time-slot available">08:30 PM</div>
+      <div class="time-slot ">10:00 PM</div>
+      <div class="time-slot fast-filling">11:00 PM</div>
+    </div>
+    <div class="cancel-info">Non-cancellable</div>
+   
+  </div>
+  <script>
+    // Select all time-slot elements
+    const timeSlots = document.querySelectorAll('.time-slot');
+  
+    timeSlots.forEach(slot => {
+      slot.addEventListener('click', () => {
+        // Optionally, you can pass time, cinema, etc. via URL query params
+        const selectedTime = slot.textContent.trim();
+        const cinemaName = slot.closest('.movie-card').querySelector('.cinema-name').textContent.trim();
+  
+        // Redirect to seat selection page with query parameters
+        window.location.href = `select.html?cinema=${encodeURIComponent(cinemaName)}&time=${encodeURIComponent(selectedTime)}`;
+      });
+    });
+  </script>
+  
+
+</body>
+</html>

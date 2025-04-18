@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EventHub - Season Pass</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Global Styles */
+        .pass-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .selected-pass {
+            border: 3px solid #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+        }
+        .payment-card {
+            transition: all 0.3s ease;
+        }
+        .payment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .payment-method.selected {
+            border-color: #4f46e5;
+            background-color: #f5f3ff;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        #payment-modal {
+            transition: opacity 0.3s ease;
+        }
+    </style>
+    
+</head>
+<body class="bg-white">
+    <!-- Header -->
+    <header class="bg-purple-700 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-6">
+            <div class="flex justify-between items-center">
+                <h1 class="text-3xl font-bold cursor-pointer" id="logo">EventHub</h1>
+                <nav>
+                    <ul class="flex space-x-6">
+                        <li><a href="#" class="hover:text-purple-200 nav-link" data-page="home">Home</a></li>
+                        <li><a href="#" class="hover:text-purple-200 nav-link" data-page="events">Events</a></li>
+                        <li><a href="#" class="hover:text-purple-200 nav-link active" data-page="season-pass">Season Pass</a></li>
+                        <li><a href="#" class="hover:text-purple-200 nav-link" data-page="account">My Account</a></li>
+                    </ul>
+                </nav>
+                <div>
+                    <button class="bg-white text-purple-700 px-4 py-2 rounded-lg font-medium hover:bg-purple-100">Sign In</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-12">
+        <!-- Season Pass Page -->
+        <div id="season-pass-page" class="page active">
+            <section class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-purple-900 mb-4">EventHub Season Pass</h2>
+                <p class="text-xl text-purple-700 max-w-3xl mx-auto">Unlock exclusive benefits and save big on all your favorite events with our premium membership plans.</p>
+            </section>
+
+            <section class="mb-16">
+                <div class="flex justify-center mb-8">
+                    <div class="inline-flex rounded-md shadow-sm" role="group">
+                        <button type="button" id="monthly-btn" class="px-6 py-3 text-sm font-medium rounded-l-lg bg-purple-600 text-white">
+                            Monthly
+                        </button>
+                        <button type="button" id="quarterly-btn" class="px-6 py-3 text-sm font-medium bg-purple-100 text-purple-800 hover:bg-purple-200">
+                            Quarterly
+                        </button>
+                        <button type="button" id="yearly-btn" class="px-6 py-3 text-sm font-medium rounded-r-lg bg-purple-100 text-purple-800 hover:bg-purple-200">
+                            Yearly
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-8" id="pass-container">
+                </div>
+            </section>
+
+            <!-- Selected Pass Summary -->
+            <section id="selected-pass-summary" class="bg-white rounded-xl shadow-lg p-6 mb-8 hidden">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="text-xl font-bold text-purple-900">Your Selection</h3>
+                        <p id="selected-pass-details" class="text-purple-700"></p>
+                    </div>
+                    <button id="proceed-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                        Proceed to Payment
+                    </button>
+                </div>
+            </section>
+
+            <section class="bg-white rounded-xl shadow-lg p-8 mb-16">
+                <h3 class="text-2xl font-bold text-purple-900 mb-6">Season Pass Benefits</h3>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-purple-50 p-6 rounded-lg">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-ticket-alt text-purple-600 text-xl"></i>
+                        </div>
+                        <h4 class="font-bold text-lg mb-2">Priority Booking</h4>
+                        <p class="text-purple-700">Get early access to tickets before the general public.</p>
+                    </div>
+                    <div class="bg-purple-50 p-6 rounded-lg">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-percentage text-purple-600 text-xl"></i>
+                        </div>
+                        <h4 class="font-bold text-lg mb-2">Discounts</h4>
+                        <p class="text-purple-700">Enjoy 10-25% off on all event tickets and merchandise.</p>
+                    </div>
+                    <div class="bg-purple-50 p-6 rounded-lg">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-crown text-purple-600 text-xl"></i>
+                        </div>
+                        <h4 class="font-bold text-lg mb-2">VIP Access</h4>
+                        <p class="text-purple-700">Exclusive VIP entry lanes and premium seating options.</p>
+                    </div>
+                    <div class="bg-purple-50 p-6 rounded-lg">
+                        <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-gift text-purple-600 text-xl"></i>
+                        </div>
+                        <h4 class="font-bold text-lg mb-2">Freebies</h4>
+                        <p class="text-purple-700">Complimentary drinks, merchandise, and surprise gifts.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="mb-16">
+                <h3 class="text-2xl font-bold text-purple-900 mb-6">Frequently Asked Questions</h3>
+                <div class="space-y-4">
+                    <div class="border border-purple-200 rounded-lg overflow-hidden">
+                        <button class="faq-btn w-full flex justify-between items-center p-4 bg-white hover:bg-purple-50">
+                            <span class="font-medium text-left">What events are included in the Season Pass?</span>
+                            <i class="fas fa-chevron-down transition-transform"></i>
+                        </button>
+                        <div class="faq-content hidden p-4 bg-white">
+                            <p class="text-purple-700">The Season Pass gives you access to all events on our platform with varying discounts. Some premium or special events may have limited availability for pass holders.</p>
+                        </div>
+                    </div>
+                    <div class="border border-purple-200 rounded-lg overflow-hidden">
+                        <button class="faq-btn w-full flex justify-between items-center p-4 bg-white hover:bg-purple-50">
+                            <span class="font-medium text-left">Can I share my Season Pass with friends?</span>
+                            <i class="fas fa-chevron-down transition-transform"></i>
+                        </button>
+                        <div class="faq-content hidden p-4 bg-white">
+                            <p class="text-purple-700">No, the Season Pass is strictly personal and non-transferable. Each pass is linked to your account and verified at event entry.</p>
+                        </div>
+                    </div>
+                    <div class="border border-purple-200 rounded-lg overflow-hidden">
+                        <button class="faq-btn w-full flex justify-between items-center p-4 bg-white hover:bg-purple-50">
+                            <span class="font-medium text-left">How do I cancel my Season Pass subscription?</span>
+                            <i class="fas fa-chevron-down transition-transform"></i>
+                        </button>
+                        <div class="faq-content hidden p-4 bg-white">
+                            <p class="text-purple-700">You can cancel anytime from your account settings. Your benefits will remain active until the end of your current billing period.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Payment Page -->
+        <div id="payment-page" class="page">
+            <div class="max-w-4xl mx-auto">
+                <!-- Order Summary -->
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h2 class="text-2xl font-bold text-purple-900 mb-6">Order Summary</h2>
+                    <div id="order-summary" class="mb-6">
+                    </div>
+                    <div class="border-t border-purple-200 pt-4">
+                        <div class="flex justify-between font-bold text-lg">
+                            <span>Total Amount:</span>
+                            <span id="total-amount">₹0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Methods
+                <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                    <h2 class="text-2xl font-bold text-purple-900 mb-6">Payment Method</h2>
+                    <div class="grid md:grid-cols-2 gap-4 mb-6">
+                        <div class="payment-method border-2 border-purple-200 rounded-lg p-4 cursor-pointer transition-colors" data-method="credit-card">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-credit-card text-blue-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold">Credit/Debit Card</h3>
+                                    <p class="text-sm text-purple-700">Pay using Visa, Mastercard, etc.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="payment-method border-2 border-purple-200 rounded-lg p-4 cursor-pointer transition-colors" data-method="upi">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-mobile-alt text-purple-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold">UPI Payment</h3>
+                                    <p class="text-sm text-purple-700">Pay using Google Pay, PhonePe, etc.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="payment-method border-2 border-purple-200 rounded-lg p-4 cursor-pointer transition-colors" data-method="netbanking">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-university text-green-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold">Net Banking</h3>
+                                    <p class="text-sm text-purple-700">Pay directly from your bank</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="payment-method border-2 border-purple-200 rounded-lg p-4 cursor-pointer transition-colors" data-method="wallet">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 bg-yellow-50 rounded-full flex items-center justify-center mr-4">
+                                    <i class="fas fa-wallet text-yellow-600 text-xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold">Wallet</h3>
+                                    <p class="text-sm text-purple-700">Pay using Paytm, Amazon Pay, etc.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+
+                    
+<div class="flex justify-center mt-6">
+    <button id="pay-now-btn" class="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-bold">
+        Pay Now with Razorpay
+    </button>
+</div>
+
+
+<!-- Payment Form (shown when credit card is selected) -->
+                    <!-- <div id="credit-card-form" class="hidden">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-purple-800 mb-2">Card Number</label>
+                                <input type="text" class="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="1234 5678 9012 3456">
+                            </div>
+                            <div class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-purple-800 mb-2">Expiry Date</label>
+                                    <input type="text" class="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="MM/YY">
+                                </div>
+                                <div>
+                                    <label class="block text-purple-800 mb-2">CVV</label>
+                                    <input type="text" class="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="123">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-purple-800 mb-2">Cardholder Name</label>
+                                <input type="text" class="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="John Doe">
+                            </div>
+                        </div>
+                    </div> -->
+
+                    <!-- UPI Form (shown when UPI is selected) -->
+                    <!-- <div id="upi-form" class="hidden">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-purple-800 mb-2">UPI ID</label>
+                                <input type="text" class="w-full px-4 py-2 border border-purple-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500" placeholder="yourname@upi">
+                            </div>
+                            <div class="flex justify-center py-4">
+                                <button class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg">
+                                    Pay via UPI App
+                                </button>
+                            </div>
+                        </div>
+                    </div> -->
+
+                    
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-purple-800 text-white py-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-8">
+                <div>
+                    <h4 class="text-xl font-bold mb-4">EventHub</h4>
+                    <p class="text-purple-500">Your gateway to the best events and experiences in town.</p>
+                </div>
+                <div>
+                    <h5 class="font-bold mb-4">Company</h5>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-purple-500 hover:text-white">About Us</a></li>
+                        <li><a href="#" class="text-purple-500 hover:text-white">Careers</a></li>
+                        <li><a href="#" class="text-purple-500 hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-bold mb-4">Support</h5>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-purple-500 hover:text-white">Help Center</a></li>
+                        <li><a href="#" class="text-purple-500 hover:text-white">Terms of Service</a></li>
+                        <li><a href="#" class="text-purple-500 hover:text-white">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h5 class="font-bold mb-4">Connect With Us</h5>
+                    <div class="flex space-x-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-purple-700 flex items-center justify-center hover:bg-purple-600">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-purple-700 flex items-center justify-center hover:bg-purple-600">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-purple-700 flex items-center justify-center hover:bg-purple-600">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-purple-700 mt-8 pt-8 text-center text-purple-500">
+                <p>© 2025 EventHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Payment Status Modal -->
+    <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4">
+            <div id="payment-success" class="hidden text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-green-600 text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-purple-900 mb-2">Payment Successful!</h3>
+                <p class="text-purple-700 mb-6">Your season pass has been activated successfully.</p>
+                
+                <button id="success-ok-btn" href="index.php" class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg">
+                    Continue to Dashboard
+                </button>
+            </div>
+            <div id="payment-failed" class="hidden text-center">
+                <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-times text-red-600 text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-bold text-purple-900 mb-2">Payment Failed</h3>
+                <p class="text-purple-700 mb-4" id="failure-reason">Your payment could not be processed.</p>
+                <div class="flex space-x-3">
+                    <button id="try-again-btn" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg">
+                        Try Again
+                    </button>
+                    <button id="cancel-payment-btn" class="flex-1 bg-purple-100 hover:bg-purple-200 text-purple-900 font-bold py-2 px-4 rounded-lg">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Season Pass Data
+        const passData = {
+            monthly: [
+                {
+                    id: "monthly-basic",
+                    name: "Basic Pass",
+                    price: "₹499",
+                    duration: "month",
+                    discount: "10%",
+                    benefits: [
+                        "10% off on all events",
+                        "Priority booking window",
+                        "Basic customer support",
+                        "Email notifications"
+                    ],
+                    popular: false
+                },
+                {
+                    id: "monthly-premium",
+                    name: "Premium Pass",
+                    price: "₹999",
+                    duration: "month",
+                    discount: "20%",
+                    benefits: [
+                        "20% off on all events",
+                        "48-hour priority booking",
+                        "Premium customer support",
+                        "1 free ticket per month",
+                        "Exclusive merchandise offers"
+                    ],
+                    popular: true
+                },
+                {
+                    id: "monthly-vip",
+                    name: "VIP Pass",
+                    price: "₹1,999",
+                    duration: "month",
+                    discount: "25%",
+                    benefits: [
+                        "25% off on all events",
+                        "72-hour priority booking",
+                        "VIP customer support",
+                        "2 free tickets per month",
+                        "VIP entry lanes",
+                        "Exclusive meet & greet opportunities"
+                    ],
+                    popular: false
+                }
+            ],
+            quarterly: [
+                {
+                    id: "quarterly-basic",
+                    name: "Basic Pass",
+                    price: "₹1,299",
+                    duration: "3 months",
+                    discount: "12%",
+                    benefits: [
+                        "12% off on all events",
+                        "Priority booking window",
+                        "Basic customer support",
+                        "Email notifications",
+                        "Save ₹200 compared to monthly"
+                    ],
+                    popular: false
+                },
+                {
+                    id: "quarterly-premium",
+                    name: "Premium Pass",
+                    price: "₹2,699",
+                    duration: "3 months",
+                    discount: "22%",
+                    benefits: [
+                        "22% off on all events",
+                        "48-hour priority booking",
+                        "Premium customer support",
+                        "3 free tickets quarterly",
+                        "Exclusive merchandise offers",
+                        "Save ₹300 compared to monthly"
+                    ],
+                    popular: true
+                },
+                {
+                    id: "quarterly-vip",
+                    name: "VIP Pass",
+                    price: "₹5,399",
+                    duration: "3 months",
+                    discount: "27%",
+                    benefits: [
+                        "27% off on all events",
+                        "72-hour priority booking",
+                        "VIP customer support",
+                        "6 free tickets quarterly",
+                        "VIP entry lanes",
+                        "Exclusive meet & greet opportunities",
+                        "Save ₹600 compared to monthly"
+                    ],
+                    popular: false
+                }
+            ],
+            yearly: [
+                {
+                    id: "yearly-basic",
+                    name: "Basic Pass",
+                    price: "₹4,999",
+                    duration: "year",
+                    discount: "15%",
+                    benefits: [
+                        "15% off on all events",
+                        "Priority booking window",
+                        "Basic customer support",
+                        "Email notifications",
+                        "Save ₹1,000 compared to monthly"
+                    ],
+                    popular: false
+                },
+                {
+                    id: "yearly-premium",
+                    name: "Premium Pass",
+                    price: "₹9,999",
+                    duration: "year",
+                    discount: "25%",
+                    benefits: [
+                        "25% off on all events",
+                        "48-hour priority booking",
+                        "Premium customer support",
+                        "12 free tickets yearly",
+                        "Exclusive merchandise offers",
+                        "1 free premium event ticket",
+                        "Save ₹2,000 compared to monthly"
+                    ],
+                    popular: true
+                },
+                {
+                    id: "yearly-vip",
+                    name: "VIP Pass",
+                    price: "₹19,999",
+                    duration: "year",
+                    discount: "30%",
+                    benefits: [
+                        "30% off on all events",
+                        "72-hour priority booking",
+                        "VIP customer support",
+                        "24 free tickets yearly",
+                        "VIP entry lanes",
+                        "Exclusive meet & greet opportunities",
+                        "2 free premium event tickets",
+                        "Save ₹4,000 compared to monthly"
+                    ],
+                    popular: false
+                }
+            ]
+        };
+
+        // DOM Elements
+        const seasonPassPage = document.getElementById('season-pass-page');
+        const paymentPage = document.getElementById('payment-page');
+        const passContainer = document.getElementById('pass-container');
+        const monthlyBtn = document.getElementById('monthly-btn');
+        const quarterlyBtn = document.getElementById('quarterly-btn');
+        const yearlyBtn = document.getElementById('yearly-btn');
+        const selectedPassSummary = document.getElementById('selected-pass-summary');
+        const selectedPassDetails = document.getElementById('selected-pass-details');
+        const proceedBtn = document.getElementById('proceed-btn');
+        const faqBtns = document.querySelectorAll('.faq-btn');
+        const navLinks = document.querySelectorAll('.nav-link');
+        const logo = document.getElementById('logo');
+        
+        // Payment page elements
+        const orderSummary = document.getElementById('order-summary');
+        const totalAmount = document.getElementById('total-amount');
+        const paymentMethods = document.querySelectorAll('.payment-method');
+        const creditCardForm = document.getElementById('credit-card-form');
+        const upiForm = document.getElementById('upi-form');
+        const paymentModal = document.getElementById('payment-modal');
+        const paymentSuccess = document.getElementById('payment-success');
+        const paymentFailed = document.getElementById('payment-failed');
+        const tryAgainBtn = document.getElementById('try-again-btn');
+        const cancelPaymentBtn = document.getElementById('cancel-payment-btn');
+        const successOkBtn = document.getElementById('success-ok-btn');
+
+        // App State
+        let activePlan = 'monthly';
+        let selectedPass = null;
+        let currentPage = 'season-pass';
+
+        // Initialize the app
+        function initApp() {
+            renderPassCards(activePlan);
+            setupEventListeners();
+        }
+
+        // Setup all event listeners
+        function setupEventListeners() {
+            // Season Pass Page
+            monthlyBtn.addEventListener('click', () => switchPlan('monthly'));
+            quarterlyBtn.addEventListener('click', () => switchPlan('quarterly'));
+            yearlyBtn.addEventListener('click', () => switchPlan('yearly'));
+            proceedBtn.addEventListener('click', proceedToPayment);
+            
+            // FAQ accordion
+            faqBtns.forEach(btn => {
+                btn.addEventListener('click', toggleFaq);
+            });
+            
+            // Navigation
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    navigateTo(link.dataset.page);
+                });
+            });
+            
+            logo.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateTo('home');
+            });
+            
+            // Payment Page
+            paymentMethods.forEach(method => {
+                method.addEventListener('click', () => selectPaymentMethod(method));
+            });
+            
+            tryAgainBtn.addEventListener('click', () => paymentModal.classList.add('hidden'));
+            cancelPaymentBtn.addEventListener('click', () => navigateTo('season-pass'));
+            successOkBtn.addEventListener('click', () => navigateTo('account'));
+        }
+
+        // Navigation
+        function navigateTo(page) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            
+            // Update active nav link
+            navLinks.forEach(link => {
+                if (link.dataset.page === page) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+            
+            // Show the requested page
+            currentPage = page;
+            if (page === 'season-pass') {
+                seasonPassPage.classList.add('active');
+            } else if (page === 'payment') {
+                paymentPage.classList.add('active');
+                initPaymentPage();
+            } else {
+                seasonPassPage.classList.add('active');
+            }
+        }
+
+        // Switch between monthly/quarterly/yearly plans
+        function switchPlan(plan) {
+            activePlan = plan;
+            renderPassCards(plan);
+            
+            // Update button states
+            monthlyBtn.className = 'px-6 py-3 text-sm font-medium rounded-l-lg ' + 
+                (plan === 'monthly' ? 'bg-purple-600 text-white' : 'bg-purple-100 text-purple-800 hover:bg-purple-200');
+            quarterlyBtn.className = 'px-6 py-3 text-sm font-medium ' + 
+                (plan === 'quarterly' ? 'bg-purple-600 text-white' : 'bg-purple-100 text-purple-800 hover:bg-purple-200');
+            yearlyBtn.className = 'px-6 py-3 text-sm font-medium rounded-r-lg ' + 
+                (plan === 'yearly' ? 'bg-purple-600 text-white' : 'bg-purple-100 text-purple-800 hover:bg-purple-200');
+            
+            // Keep the summary visible if a pass from the new plan is selected
+            if (selectedPass && selectedPass.startsWith(plan)) {
+                document.getElementById(selectedPass).scrollIntoView({ behavior: 'smooth' });
+            } else {
+                selectedPassSummary.classList.add('hidden');
+                selectedPass = null;
+            }
+        }
+
+        // Render pass cards for the current plan
+        function renderPassCards(plan) {
+            passContainer.innerHTML = '';
+            
+            passData[plan].forEach(pass => {
+                const passCard = document.createElement('div');
+                passCard.className = `pass-card relative bg-white rounded-xl shadow-lg overflow-hidden transition-all duration-300 ${pass.popular ? 'border-2 border-purple-500' : ''}`;
+                passCard.id = pass.id;
+                
+                if (pass.popular) {
+                    passCard.innerHTML += `
+                        
+                    `;
+                }
+                
+                passCard.innerHTML += `
+                    <div class="p-6">
+                        <h3 class="text-2xl font-bold text-purple-900 mb-2">${pass.name}</h3>
+                        <p class="text-purple-700 mb-4">Save ${pass.discount} on all events</p>
+                        
+                        <div class="mb-6">
+                            <span class="text-4xl font-bold text-purple-600">${pass.price}</span>
+                            <span class="text-purple-600">/${pass.duration}</span>
+                        </div>
+                        
+                        <ul class="space-y-3 mb-8">
+                            ${pass.benefits.map(benefit => `<li class="flex items-start">
+                                <i class="fas fa-check text-green-500 mt-1 mr-2"></i>
+                                <span>${benefit}</span>
+                            </li>`).join('')}
+                        </ul>
+                        
+                        <button class="select-pass-btn w-full ${selectedPass === pass.id ? 'bg-purple-700' : 'bg-purple-600 hover:bg-purple-700'} text-white font-bold py-3 px-4 rounded-lg transition-colors">
+                            ${selectedPass === pass.id ? 'Selected' : 'Select Plan'}
+                        </button>
+                    </div>
+                `;
+                
+                passContainer.appendChild(passCard);
+            });
+
+            // Add event listeners to new buttons
+            document.querySelectorAll('.select-pass-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const passCard = this.closest('.pass-card');
+                    selectPass(passCard.id);
+                });
+            });
+        }
+
+        // Select a pass
+        function selectPass(passId) {
+            // Remove selected class from all cards
+            document.querySelectorAll('.pass-card').forEach(card => {
+                card.classList.remove('selected-pass');
+            });
+            
+            // Find the selected pass data
+            let passInfo = null;
+            for (const plan in passData) {
+                const foundPass = passData[plan].find(p => p.id === passId);
+                if (foundPass) {
+                    passInfo = foundPass;
+                    break;
+                }
+            }
+            
+            if (passInfo) {
+                selectedPass = passId;
+                
+                // Add selected class to the chosen card
+                const selectedCard = document.getElementById(passId);
+                if (selectedCard) {
+                    selectedCard.classList.add('selected-pass');
+                    
+                    // Update the select button text
+                    const selectBtn = selectedCard.querySelector('.select-pass-btn');
+                    if (selectBtn) {
+                        selectBtn.textContent = 'Selected';
+                        selectBtn.classList.add('bg-purple-700');
+                        selectBtn.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+                    }
+                }
+                
+                // Update other buttons to show "Select Plan"
+                document.querySelectorAll('.select-pass-btn').forEach(btn => {
+                    if (btn.textContent !== 'Selected') {
+                        btn.textContent = 'Select Plan';
+                        btn.classList.add('bg-purple-600', 'hover:bg-purple-700');
+                        btn.classList.remove('bg-purple-700');
+                    }
+                });
+                
+                // Show the summary section
+                selectedPassSummary.classList.remove('hidden');
+                selectedPassDetails.textContent = `${passInfo.name} - ${passInfo.price}/${passInfo.duration} (Save ${passInfo.discount})`;
+            }
+        }
+
+        // Proceed to payment
+        function proceedToPayment() {
+            if (selectedPass) {
+                navigateTo('payment');
+            }
+        }
+
+        // Initialize payment page
+        function initPaymentPage() {
+            if (!selectedPass) {
+                navigateTo('season-pass');
+                return;
+            }
+
+            // Find the selected pass data
+            let passInfo = null;
+            for (const plan in passData) {
+                const foundPass = passData[plan].find(p => p.id === selectedPass);
+                if (foundPass) {
+                    passInfo = foundPass;
+                    break;
+                }
+            }
+
+            if (!passInfo) {
+                navigateTo('season-pass');
+                return;
+            }
+
+            // Display order summary
+            orderSummary.innerHTML = `
+                <div class="flex justify-between items-center mb-4 pb-4 border-b border-purple-200">
+                    <div>
+                        <h3 class="font-bold">${passInfo.name}</h3>
+                        <p class="text-purple-700">${passInfo.duration}ly subscription</p>
+                    </div>
+                    <span class="font-bold">${passInfo.price}</span>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between">
+                        <span class="text-purple-700">Subtotal</span>
+                        <span>${passInfo.price}</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-purple-700">Tax (18%)</span>
+                        <span>₹${calculateTax(passInfo.price)}</span>
+                    </div>
+                </div>
+            `;
+
+            // Calculate and display total
+            const subtotal = parseFloat(passInfo.price.replace(/[₹,]/g, ""));
+            const tax = parseFloat(calculateTax(passInfo.price));
+            const total = subtotal + tax;
+            totalAmount.textContent = `₹${total.toFixed(2)}`;
+        }
+
+        // Calculate tax (18%)
+        function calculateTax(priceStr) {
+            const price = parseFloat(priceStr.replace(/[₹,]/g, ""));
+            return (price * 0.18).toFixed(2);
+        }
+
+        // Select payment method
+        function selectPaymentMethod(method) {
+            // Remove selected class from all methods
+            paymentMethods.forEach(m => m.classList.remove('selected'));
+            
+            // Add selected class to clicked method
+            method.classList.add('selected');
+            
+            // Show the appropriate form
+            const methodType = method.getAttribute('data-method');
+            creditCardForm.classList.add('hidden');
+            upiForm.classList.add('hidden');
+            
+            if (methodType === 'credit-card') {
+                creditCardForm.classList.remove('hidden');
+            } else if (methodType === 'upi') {
+                upiForm.classList.remove('hidden');
+            }
+        }
+
+        // Process payment
+        function processPayment() {
+            
+            
+            const isSuccess = Math.random() > 0.3; // 70% success rate
+            
+            if (isSuccess) {
+                showPaymentSuccess();
+            } else {
+                showPaymentFailed("Insufficient funds or payment declined by bank.");
+            }
+        }
+
+        // Show payment success
+        function showPaymentSuccess() {
+            paymentModal.classList.remove('hidden');
+            paymentSuccess.classList.remove('hidden');
+            paymentFailed.classList.add('hidden');
+        }
+
+        // Show payment failed
+        function showPaymentFailed(reason) {
+            paymentModal.classList.remove('hidden');
+            paymentSuccess.classList.add('hidden');
+            paymentFailed.classList.remove('hidden');
+            document.getElementById('failure-reason').textContent = reason;
+        }
+
+        // Toggle FAQ item
+        function toggleFaq(e) {
+            const content = e.currentTarget.nextElementSibling;
+            const icon = e.currentTarget.querySelector('i');
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                icon.classList.remove('rotate-180');
+            }
+        }
+
+        
+// Razorpay Payment
+document.getElementById('pay-now-btn').addEventListener('click', function () {
+    if (!selectedPass) return;
+
+    // Find pass details
+    let passInfo = null;
+    for (const plan in passData) {
+        const foundPass = passData[plan].find(p => p.id === selectedPass);
+        if (foundPass) {
+            passInfo = foundPass;
+            break;
+        }
+    }
+
+    if (!passInfo) return;
+
+    const amountInPaise = Math.round((parseFloat(passInfo.price.replace(/[₹,]/g, "")) * 1.18) * 100); // Including 18% GST
+
+    const options = {
+        "key": "rzp_test_Oo31Muy4R7xzyI",
+        "amount": amountInPaise,
+        "currency": "INR",
+        "name": "EventHub",
+        "description": `${passInfo.name} Subscription`,
+        "handler": function (response) {
+            showPaymentSuccess();
+            console.log("Razorpay Payment ID:", response.razorpay_payment_id);
+        },
+        "prefill": {
+            "name": "Test User",
+            "email": "test@example.com",
+            "contact": "9999999999"
+        },
+        "theme": {
+            "color": "#4f46e5"
+        }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+});
+
+
+        // Initialize the app
+        initApp();
+    </script>
+</body>
+</html>

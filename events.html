@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Events in Phagwara - BookMyShow</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: #1a1a1a;
+            padding: 15px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo img {
+            height: 80px;
+        }
+
+        .search-bar {
+            position: relative;
+            width: 40%;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 4px;
+            border: none;
+            font-size: 14px;
+        }
+
+        .search-bar i {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .location {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .sign-in {
+            background-color: #f84464;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* Navigation Styles */
+        .main-nav {
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .main-nav ul {
+            display: flex;
+            list-style: none;
+            padding: 15px 0;
+        }
+
+        .main-nav li {
+            margin-right: 25px;
+        }
+
+        .main-nav a {
+            text-decoration: none;
+            color: #666;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .main-nav a i {
+            font-size: 16px;
+        }
+
+        .main-nav li.active a {
+            color: #f84464;
+        }
+
+        /* Breadcrumb Styles */
+        .breadcrumb {
+            padding: 20px 0;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .breadcrumb a {
+            color: #666;
+            text-decoration: none;
+        }
+
+        .breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+        .breadcrumb span {
+            color: #f84464;
+        }
+
+        /* Page Title */
+        .page-title {
+            font-size: 28px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .filter-dropdown select {
+            padding: 10px 15px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Events Grid */
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .event-card {
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .event-image {
+            position: relative;
+            height: 180px;
+            overflow: hidden;
+        }
+
+        .event-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .event-card:hover .event-image img {
+            transform: scale(1.05);
+        }
+
+        .event-tag {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(0,0,0,0.7);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .event-details {
+            padding: 15px;
+        }
+
+        .event-details h3 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .event-details p {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .event-details p i {
+            font-size: 14px;
+        }
+
+        .event-details .price {
+            color: #f84464;
+            font-weight: 600;
+            font-size: 14px;
+            margin: 15px 0;
+        }
+
+        .book-btn {
+            width: 100%;
+            padding: 8px;
+            background-color: #f84464;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .book-btn:hover {
+            background-color: #e63353;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 50px auto;
+            width: 80%;
+            max-width: 800px;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .modal-body {
+            display: flex;
+        }
+
+        .modal-left {
+            width: 40%;
+        }
+
+        .modal-left img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .modal-right {
+            width: 60%;
+            padding: 30px;
+        }
+
+        .modal-right h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .modal-venue, .modal-date {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .modal-venue i, .modal-date i {
+            font-size: 16px;
+        }
+
+        .price-options {
+            margin: 30px 0;
+        }
+
+        .price-options h3 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .price-option {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .price-option.selected {
+            border-color: #f84464;
+            background-color: #fff5f7;
+        }
+
+        .price-option input {
+            display: none;
+        }
+
+        .price-option label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .price-option label span:first-child {
+            font-weight: 500;
+        }
+
+        .price-option .price {
+            color: #f84464;
+            font-weight: 600;
+        }
+
+        .total-section {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-top: 1px solid #eee;
+            margin-top: 20px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .pay-now-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #f84464;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .pay-now-btn:hover {
+            background-color: #e63353;
+        }
+
+        /* Footer Styles */
+        .footer {
+            background-color: #1a1a1a;
+            color: #fff;
+            padding: 40px 0 20px;
+        }
+
+        .footer .container {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .footer-section {
+            width: 30%;
+            margin-bottom: 20px;
+        }
+
+        .footer-section h4 {
+            font-size: 16px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section li {
+            margin-bottom: 10px;
+        }
+
+        .footer-section a {
+            color: #ccc;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .footer-section a:hover {
+            color: #fff;
+        }
+
+        .app-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .app-buttons img {
+            height: 40px;
+            width: auto;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .header .container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .search-bar {
+                width: 100%;
+            }
+            
+            .modal-body {
+                flex-direction: column;
+            }
+            
+            .modal-left, .modal-right {
+                width: 100%;
+            }
+            
+            .modal-left {
+                height: 200px;
+            }
+            
+            .footer-section {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="logo">
+                <img src="img/Movienow.png" alt="MoviesNow Logo">
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Search for movies, events, plays, sports and activities">
+                <i class="fas fa-search"></i>
+            </div>
+            <div class="user-actions">
+                <div class="location">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Phagwara</span>
+                </div>
+                <a href="index.php" class="sign-in">Home</a>
+            </div>
+        </div>
+    </header>
+
+    <nav class="main-nav">
+        <div class="container">
+            <ul>
+                <li><a href="index.php"><i class="fas fa-film"></i> Movies</a></li>
+                <li class="active"><a href="#"><i class="fas fa-calendar-alt"></i> Events</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="breadcrumb">
+        </div>
+
+        <h1 class="page-title">Events Happening in Phagwara</h1>
+
+        <div class="filters">
+            <div class="filter-dropdown">
+                <select>
+                    <option>All Categories</option>
+                    <option>Comedy Shows</option>
+                    <option>Workshops</option>
+                    <option>Music Shows</option>
+                    <option>Exhibitions</option>
+                    <option>Sports</option>
+                    <option>Food Festivals</option>
+                </select>
+            </div>
+            <div class="filter-dropdown">
+                <select>
+                    <option>All Languages</option>
+                    <option>English</option>
+                    <option>Hindi</option>
+                    <option>Punjabi</option>
+                </select>
+            </div>
+            <div class="filter-dropdown">
+                <select>
+                    <option>All Dates</option>
+                    <option>Today</option>
+                    <option>Tomorrow</option>
+                    <option>This Weekend</option>
+                    <option>Next Week</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="events-grid">
+            <!-- Event Card 1 -->
+            <div class="event-card" data-event-id="1">
+                <div class="event-image">
+                    <img src="img/Comedyshow.jpeg" alt="Comedy Night">
+                    <div class="event-tag">Comedy Show</div>
+                </div>
+                <div class="event-details">
+                    <h3>Stand Up Comedy Night</h3>
+                    <p class="venue"><i class="fas fa-map-marker-alt"></i> Phagwara Club</p>
+                    <p class="date"><i class="far fa-calendar-alt"></i> Sat, 15 May • 7 PM</p>
+                    <p class="price">From ₹299</p>
+                    <button class="book-btn">Book Now</button>
+                </div>
+            </div>
+
+            <!-- Event Card 2 -->
+            <div class="event-card" data-event-id="2">
+                <div class="event-image">
+                    <img src="img/Folk music.jpeg" alt="Music Festival">
+                    <div class="event-tag">Music Show</div>
+                </div>
+                <div class="event-details">
+                    <h3>Punjabi Folk Music Festival</h3>
+                    <p class="venue"><i class="fas fa-map-marker-alt"></i> Lovely Professional University</p>
+                    <p class="date"><i class="far fa-calendar-alt"></i> Sun, 16 May • 6 PM</p>
+                    <p class="price">From ₹499</p>
+                    <button class="book-btn">Book Now</button>
+                </div>
+            </div>
+
+            <!-- Event Card 3 -->
+            <div class="event-card" data-event-id="3">
+                <div class="event-image">
+                    <img src="img/Digital Marketing.jpeg" alt="Workshop">
+                    <div class="event-tag">Workshop</div>
+                </div>
+                <div class="event-details">
+                    <h3>Digital Marketing Workshop</h3>
+                    <p class="venue"><i class="fas fa-map-marker-alt"></i> GNDU Regional Campus</p>
+                    <p class="date"><i class="far fa-calendar-alt"></i> Fri, 14 May • 10 AM</p>
+                    <p class="price">From ₹799</p>
+                    <button class="book-btn">Book Now</button>
+                </div>
+            </div>
+
+            <!-- Event Card 4 -->
+            <div class="event-card" data-event-id="4">
+                <div class="event-image">
+                    <img src="img/Art.jpeg" alt="Exhibition">
+                    <div class="event-tag">Exhibition</div>
+                </div>
+                <div class="event-details">
+                    <h3>Art & Craft Exhibition</h3>
+                    <p class="venue"><i class="fas fa-map-marker-alt"></i> Phagwara Town Hall</p>
+                    <p class="date"><i class="far fa-calendar-alt"></i> Sat, 15 May - Sun, 16 Jul • 11 AM</p>
+                    <p class="price">From ₹99</p>
+                    <button class="book-btn">Book Now</button>
+                </div>
+            </div>
+
+            <!-- Event Card 5 (New) -->
+            <div class="event-card" data-event-id="5">
+                <div class="event-image">
+                    <img src="img/cricket.jpeg" alt="Cricket Match">
+                    <div class="event-tag">Sports</div>
+                </div>
+                <div class="event-details">
+                    <h3>Local Cricket Tournament</h3>
+                    <p class="venue"><i class="fas fa-map-marker-alt"></i> Phagwara Sports Complex</p>
+                    <p class="date"><i class="far fa-calendar-alt"></i> Sun, 23 May • 9 AM</p>
+                    <p class="price">From ₹149</p>
+                    <button class="book-btn">Book Now</button>
+                </div>
+            </div>
+
+            <!-- Event Card 6 (New) -->
+            <div class="event-card" data-event-id="6">
+                <div class="event-image">
+                    <img src="img/punjabi food.jpeg" alt="Food Festival">
+                    <div class="event-tag">Food Festival</div>
+                </div>
+                <div class="event-details">
+                    <h3>Punjabi Food Festival</h3>
+                    <p class="venue"><i class="fas fa-map-marker-alt"></i> Phagwara Ground</p>
+                    <p class="date"><i class="far fa-calendar-alt"></i> Fri, 21 May - Sun, 23 Jul • 12 PM</p>
+                    <p class="price">From ₹199</p>
+                    <button class="book-btn">Book Now</button>
+                </div>
+            </div>
+
+            <!-- Event Card 7 (New) -->
+            <div class="event-card" data-event-id="7">
+                <div class="event-image">
+                    <img src="img/bhangra.jpeg" alt="Dance Workshop">
+                    <div class="event-tag">Workshop</div>
+                </div>
+                <div class="event-details">
+                    <h3>Bhangra Dance Workshop</h3>
+                    <p class="venue"><i class="fas fa-map-marker-alt"></i> LPU Cultural Center</p>
+                    <p class="date"><i class="far fa-calendar-alt"></i> Sat, 22 May • 4 PM</p>
+                    <p class="price">From ₹399</p>
+                    <button class="book-btn">Book Now</button>
+                </div>
+            </div>
+
+            <!-- Event Card 8 (New) -->
+            <div class="event-card" data-event-id="8">
+                <div class="event-image">
+                    <img src="img/folk theater.jpeg" alt="Theater Play">
+                    <div class="event-tag">Theater</div>
+                </div>
+                <div class="event-details">
+                    <h3>Punjabi Folk Theater</h3>
+                    <p class="venue"><i class="fas fa-map-marker-alt"></i> Phagwara Community Hall</p>
+                    <p class="date"><i class="far fa-calendar-alt"></i> Sat, 29 may • 6 PM</p>
+                    <p class="price">From ₹249</p>
+                    <button class="book-btn">Book Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Event Modal -->
+    <div class="modal" id="eventModal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="modal-body">
+                <div class="modal-left">
+                    <img id="modalEventImage" src="https://th.bing.com/th/id/OIP.MMURZiRK4IyGR1RZ29lS5gHaEr?w=223&h=180&c=7&r=0&o=5&dpr=1.3&pid=1.7">
+                </div>
+                <div class="modal-right">
+                    <h2 id="modalEventTitle"></h2>
+                    <p class="modal-venue" id="modalEventVenue"></p>
+                    <p class="modal-date" id="modalEventDate"></p>
+                    <div class="price-options">
+                        <h3>Select Ticket Type</h3>
+                        <div class="price-option selected">
+                            <input type="radio" name="ticketType" id="standard" checked>
+                            <label for="standard">
+                                <span>Standard</span>
+                                <span class="price">₹299</span>
+                            </label>
+                        </div>
+                        <div class="price-option">
+                            <input type="radio" name="ticketType" id="vip">
+                            <label for="vip">
+                                <span>VIP</span>
+                                <span class="price">₹499</span>
+                            </label>
+                        </div>
+                        <div class="price-option">
+                            <input type="radio" name="ticketType" id="premium">
+                            <label for="premium">
+                                <span>Premium</span>
+                                <span class="price">₹799</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="total-section">
+                        <span>Total</span>
+                        <span id="totalPrice">₹299</span>
+                    </div>
+                    <button id="payNowBtn" class="pay-now-btn">Pay Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-section">
+                <h4>MoviesNow</h4>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">Terms and Conditions</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Help</h4>
+                <ul>
+                    <li><a href="#">FAQ</a></li>
+                    <li><a href="#">Sitemap</a></li>
+                    <li><a href="#">Feedback</a></li>
+                </ul>
+            
+        </div>
+        <div class="copyright">
+            <p>© 2025 MoviesNow . All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Event data
+            const events = {
+                1: {
+                    title: "Stand Up Comedy Night",
+                    image: "https://in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC/et00311762-lmdexnggxy-portrait.jpg",
+                    venue: "Phagwara Club",
+                    date: "Sat, 15 Jul • 7 PM",
+                    prices: {
+                        standard: 299,
+                        vip: 499,
+                        premium: 799
+                    }
+                },
+                2: {
+                    title: "Punjabi Folk Music Festival",
+                    image: "https://in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC/et00301562-szzusqmrne-portrait.jpg",
+                    venue: "Lovely Professional University",
+                    date: "Sun, 16 Jul • 6 PM",
+                    prices: {
+                        standard: 499,
+                        vip: 799,
+                        premium: 1299
+                    }
+                },
+                3: {
+                    title: "Digital Marketing Workshop",
+                    image: "https://in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC/et00311762-lmdexnggxy-portrait.jpg",
+                    venue: "GNDU Regional Campus",
+                    date: "Fri, 14 Jul • 10 AM",
+                    prices: {
+                        standard: 799,
+                        vip: 1299,
+                        premium: 1999
+                    }
+                },
+                4: {
+                    title: "Art & Craft Exhibition",
+                    image: "https://in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC/et00301562-szzusqmrne-portrait.jpg",
+                    venue: "Phagwara Town Hall",
+                    date: "Sat, 15 Jul - Sun, 16 Jul • 11 AM",
+                    prices: {
+                        standard: 99,
+                        vip: 199,
+                        premium: 299
+                    }
+                },
+                5: {
+                    title: "Local Cricket Tournament",
+                    image: "https://in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC/et00301062-uwdppqkqsf-portrait.jpg",
+                    venue: "Phagwara Sports Complex",
+                    date: "Sun, 23 Jul • 9 AM",
+                    prices: {
+                        standard: 149,
+                        vip: 299,
+                        premium: 499
+                    }
+                },
+                6: {
+                    title: "Punjabi Food Festival",
+                    image: "https://in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC/et00301062-npwxhxzqat-portrait.jpg",
+                    venue: "Phagwara Ground",
+                    date: "Fri, 21 Jul - Sun, 23 Jul • 12 PM",
+                    prices: {
+                        standard: 199,
+                        vip: 399,
+                        premium: 599
+                    }
+                },
+                7: {
+                    title: "Bhangra Dance Workshop",
+                    image: "https://in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC/et00301062-bfgvstzsfx-portrait.jpg",
+                    venue: "LPU Cultural Center",
+                    date: "Sat, 22 Jul • 4 PM",
+                    prices: {
+                        standard: 399,
+                        vip: 699,
+                        premium: 999
+                    }
+                },
+                8: {
+                    title: "Punjabi Folk Theater",
+                    image: "https://in.bmscdn.com/discovery-catalog/events/tr:w-400,h-600,bg-CCCCCC/et00301062-xxcrjumdpp-portrait.jpg",
+                    venue: "Phagwara Community Hall",
+                    date: "Sat, 29 Jul • 6 PM",
+                    prices: {
+                        standard: 249,
+                        vip: 449,
+                        premium: 699
+                    }
+                }
+            };
+
+            // DOM Elements
+            const modal = document.getElementById('eventModal');
+            const closeBtn = document.querySelector('.close-btn');
+            const bookBtns = document.querySelectorAll('.book-btn');
+            const eventCards = document.querySelectorAll('.event-card');
+            const payNowBtn = document.getElementById('payNowBtn');
+            
+            // Modal elements
+            const modalEventTitle = document.getElementById('modalEventTitle');
+            const modalEventImage = document.getElementById('modalEventImage');
+            const modalEventVenue = document.getElementById('modalEventVenue');
+            const modalEventDate = document.getElementById('modalEventDate');
+            const totalPrice = document.getElementById('totalPrice');
+            
+            // Current selected event and ticket type
+            let currentEventId = null;
+            let currentTicketType = 'standard';
+            
+            // Initialize event listeners
+            function initEventListeners() {
+                // Open modal when clicking on book button or event card
+                bookBtns.forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const eventId = this.closest('.event-card').dataset.eventId;
+                        openModal(eventId);
+                    });
+                });
+                
+                eventCards.forEach(card => {
+                    card.addEventListener('click', function() {
+                        const eventId = this.dataset.eventId;
+                        openModal(eventId);
+                    });
+                });
+                
+                // Close modal
+                closeBtn.addEventListener('click', closeModal);
+                
+                // Close modal when clicking outside
+                window.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeModal();
+                    }
+                });
+                
+                // Ticket type selection
+                document.querySelectorAll('.price-option').forEach(option => {
+                    option.addEventListener('click', function() {
+                        document.querySelectorAll('.price-option').forEach(opt => {
+                            opt.classList.remove('selected');
+                        });
+                        this.classList.add('selected');
+                        
+                        const selectedInput = this.querySelector('input');
+                        currentTicketType = selectedInput.id;
+                        updateTotalPrice();
+                    });
+                });
+                
+                // Pay Now button
+                payNowBtn.addEventListener('click', initiatePayment);
+            }
+            
+            // Open modal with event details
+            function openModal(eventId) {
+                currentEventId = eventId;
+                const event = events[eventId];
+                
+                modalEventTitle.textContent = event.title;
+                modalEventImage.src = event.image;
+                modalEventVenue.innerHTML = `<i class="fas fa-map-marker-alt"></i> ${event.venue}`;
+                modalEventDate.innerHTML = `<i class="far fa-calendar-alt"></i> ${event.date}`;
+                
+                // Update price options based on event
+                const priceOptions = document.querySelectorAll('.price-option');
+                priceOptions[0].querySelector('.price').textContent = `₹${event.prices.standard}`;
+                priceOptions[1].querySelector('.price').textContent = `₹${event.prices.vip}`;
+                priceOptions[2].querySelector('.price').textContent = `₹${event.prices.premium}`;
+                
+                // Reset to standard ticket
+                priceOptions.forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                priceOptions[0].classList.add('selected');
+                currentTicketType = 'standard';
+                
+                updateTotalPrice();
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+            
+            // Close modal
+            function closeModal() {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+            
+            // Update total price based on selected ticket
+            function updateTotalPrice() {
+                const event = events[currentEventId];
+                const price = event.prices[currentTicketType];
+                totalPrice.textContent = `₹${price}`;
+            }
+            
+            // Initiate Razorpay payment
+            function initiatePayment() {
+                const event = events[currentEventId];
+                const amount = event.prices[currentTicketType] * 100; // Convert to paise
+                
+                const options = {
+                    key: 'rzp_test_Oo31Muy4R7xzyI', // Your Razorpay Key ID
+                    amount: amount,
+                    currency: 'INR',
+                    name: 'MoviesNow',
+                    description: `Booking for ${event.title} (${currentTicketType.toUpperCase()})`,
+                    image: 'https://in.bmscdn.com/webin/common/icons/logo.svg',
+                    handler: function(response) {
+                        alert('Payment successful! Payment ID: ' + response.razorpay_payment_id);
+                        closeModal();
+                    },
+                    prefill: {
+                        name: 'John Doe',
+                        email: 'john.doe@example.com',
+                        contact: '9999999999'
+                    },
+                    notes: {
+                        address: 'Phagwara, Punjab'
+                    },
+                    theme: {
+                        color: '#F84464'
+                    }
+                };
+                
+                const rzp = new Razorpay(options);
+                rzp.open();
+                
+                rzp.on('payment.failed', function(response) {
+                    alert('Payment failed. Please try again.');
+                    console.error(response.error);
+                });
+            }
+            
+            // Initialize the app
+            initEventListeners();
+        });
+    </script>
+</body>
+</html>

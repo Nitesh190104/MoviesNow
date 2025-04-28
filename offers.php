@@ -17,7 +17,7 @@ if ($conn->connect_error) {
 
 // Initialize user data
 $user_id = 1;
-$user_points = 1500;
+$user_points = 2000;
 $user_tier = 'Platinum';
 
 // Get user data from database
@@ -77,7 +77,7 @@ $offers = [
         'valid_until' => '2025-12-31',
         'offer_type' => 'CASHBACK OFFER',
         'discount_details' => 'Flat 15% cashback on all movie bookings',
-        'image' => 'Flat15.png'
+        'image' => 'img/Flat15.png'
     ],
     [
         'title' => 'Buy 1 Get 1 Free',
@@ -86,7 +86,7 @@ $offers = [
         'valid_until' => '2025-11-30',
         'offer_type' => 'PACKAGE OFFER',
         'discount_details' => 'Buy one ticket and get another free for any movie',
-        'image' => 'Buy1Get1.png'
+        'image' => 'img/Buy1Get1.png'
     ],
     [
         'title' => 'Flat ₹100 Off',
@@ -95,7 +95,7 @@ $offers = [
         'valid_until' => '2025-10-31',
         'offer_type' => 'DISCOUNT OFFER',
         'discount_details' => 'Flat ₹100 discount on any movie ticket',
-        'image' => 'Flat100.png'
+        'image' => 'img/Flat100.png'
     ],
     [
         'title' => 'Premium Movie Package',
@@ -104,7 +104,7 @@ $offers = [
         'valid_until' => '2025-12-15',
         'offer_type' => 'PACKAGE OFFER',
         'discount_details' => 'Perfect for date night! Includes 2 tickets and large popcorn',
-        'image' => 'Popcorn.png'
+        'image' => 'img/Popcorn.png'
     ],
     [
         'title' => 'Weekday Special',
@@ -113,7 +113,7 @@ $offers = [
         'valid_until' => '2025-11-15',
         'offer_type' => 'TIME OFFER',
         'discount_details' => 'Special discounts on weekday movie tickets',
-        'image' => 'weekday.png'
+        'image' => 'img/weekday.png'
     ],
     [
         'title' => 'Family Package',
@@ -122,7 +122,7 @@ $offers = [
         'valid_until' => '2025-12-25',
         'offer_type' => 'PACKAGE OFFER',
         'discount_details' => 'Perfect family outing! 4 tickets + large combo meal',
-        'image' => 'FamilyPackage.png'
+        'image' => 'img/FamilyPackage.png'
     ],
     [
         'title' => 'Student Discount',
@@ -131,7 +131,7 @@ $offers = [
         'valid_until' => '2025-12-31',
         'offer_type' => 'DISCOUNT OFFER',
         'discount_details' => '15% discount for students with valid ID',
-        'image' => 'studentdiscount.png'
+        'image' => 'img/studentdiscount.png'
     ],
     [
         'title' => '3D Movie Discount',
@@ -140,7 +140,7 @@ $offers = [
         'valid_until' => '2025-11-30',
         'offer_type' => 'DISCOUNT OFFER',
         'discount_details' => 'Enjoy 20% off on all 3D movie bookings',
-        'image' => '3Dmovie.png'
+        'image' => 'img/3Dmovie.png'
     ],
     [
         'title' => 'Early Bird Special',
@@ -149,12 +149,12 @@ $offers = [
         'valid_until' => '2025-10-15',
         'offer_type' => 'TIME OFFER',
         'discount_details' => 'Get 25% off on shows before 12pm',
-        'image' => 'EarlyBird.png'
+        'image' => 'img/EarlyBird.png'
     ]
 ];
 
 // Insert offers into database if they don't exist
-foreach ($offers as $offer) {
+foreach ($offers as $key => $offer) {
     $check_query = $conn->prepare("SELECT id FROM offers WHERE title = ?");
     $check_query->bind_param("s", $offer['title']);
     $check_query->execute();
@@ -171,6 +171,10 @@ foreach ($offers as $offer) {
             $offer['discount_details']
         );
         $insert_query->execute();
+        $offers[$key]['id'] = $conn->insert_id;
+    } else {
+        $row = $check_result->fetch_assoc();
+        $offers[$key]['id'] = $row['id'];
     }
 }
 
@@ -328,17 +332,15 @@ $progress_percentage = $next_tier ? min(100, (($user_points - $current_tier['min
     <!-- Header -->
     <header class="bg-white shadow-sm">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <div class="text-2xl font-bold text-primary-600">Show.AI</div>
-                <nav class="hidden md:flex space-x-6 ml-10">
-                    <a href="#" class="text-gray-700 hover:text-primary-600">Movies</a>
-                    <a href="#" class="text-gray-700 hover:text-primary-600">Stream</a>
-                    <a href="#" class="text-gray-700 hover:text-primary-600">Events</a>
-                    <a href="#" class="text-primary-600 font-medium">Offers</a>
+            <div class="flex items-center space-x-10">
+                <div class="text-2xl font-bold text-primary-600">MovieNow</div>
+                <nav class="hidden md:flex space-x-7 ml-10">
+                    <a href="index.php" class="bg-primary-600 text-white px-4 py-1 rounded-full text-sm font-medium hover:bg-primary-700">Movies</a>
+                    <a href="events.html" class="bg-primary-600 text-white px-4 py-1 rounded-full text-sm font-medium hover:bg-primary-700">Events</a>
                 </nav>
             </div>
             <div class="flex items-center space-x-4">
-                <button class="bg-primary-600 text-white px-4 py-1 rounded-full text-sm font-medium hover:bg-primary-700">Sign In</button>
+                <a href="index.php" class="bg-primary-600 text-white px-4 py-1 rounded-full text-sm font-medium hover:bg-primary-700">Home</a>
             </div>
         </div>
     </header>
@@ -346,7 +348,7 @@ $progress_percentage = $next_tier ? min(100, (($user_points - $current_tier['min
     <!-- Loyalty Points Banner -->
     <div class="bg-gradient-to-r from-primary-600 to-primary-400 text-white py-6">
         <div class="container mx-auto px-4 text-center">
-            <h2 class="text-2xl font-bold mb-2">Show.AI Rewards</h2>
+            <h2 class="text-2xl font-bold mb-2">MovieNow Rewards</h2>
             <div class="flex justify-center items-center space-x-8 mb-4">
                 <div>
                     <p class="text-sm">Your Points</p>
